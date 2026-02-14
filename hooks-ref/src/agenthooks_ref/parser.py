@@ -58,12 +58,21 @@ def parse_frontmatter(content: str) -> tuple[dict, str]:
     if not isinstance(metadata, dict):
         raise ParseError("HOOK.md frontmatter must be a YAML mapping")
 
-    # Normalize metadata keys (e.g., async_ vs async)
+    # Normalize metadata keys (e.g., async_ vs async) and values
     normalized: dict[str, object] = {}
     for k, v in metadata.items():
         # Convert async -> async_ for Python reserved words
         key = k if k != "async" else "async_"
-        normalized[key] = v
+        # Convert numeric strings to integers for known numeric fields
+        if key in ("timeout", "priority") and isinstance(v, str):
+            try:
+                normalized[key] = int(v)
+            except ValueError:
+                normalized[key] = v
+        elif key == "async_" and isinstance(v, str):
+            normalized[key] = v.lower() in ("true", "yes", "1")
+        else:
+            normalized[key] = v
 
     # Ensure metadata dict values are strings
     if "metadata" in normalized and isinstance(normalized["metadata"], dict):

@@ -81,7 +81,7 @@ class TestReadProperties:
             """---
 name: my-hook
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 # My Hook
 """
@@ -89,7 +89,7 @@ trigger: before_tool
         props = read_properties(hook_dir)
         assert props.name == "my-hook"
         assert props.description == "A test hook"
-        assert props.trigger == HookEventType.BEFORE_TOOL
+        assert props.trigger == HookEventType.PRE_TOOL_CALL
 
     def test_reads_all_properties(self, tmp_path):
         hook_dir = tmp_path / "my-hook"
@@ -98,7 +98,7 @@ trigger: before_tool
             """---
 name: my-hook
 description: A test hook
-trigger: after_tool
+trigger: post-tool-call
 matcher:
   tool: Shell
   pattern: "rm -rf"
@@ -111,7 +111,7 @@ priority: 999
         )
         props = read_properties(hook_dir)
         assert props.name == "my-hook"
-        assert props.trigger == HookEventType.AFTER_TOOL
+        assert props.trigger == HookEventType.POST_TOOL_CALL
         assert props.matcher.tool == "Shell"
         assert props.matcher.pattern == "rm -rf"
         assert props.timeout == 5000
@@ -125,7 +125,7 @@ priority: 999
             """---
 name: my-hook
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 """
         )
@@ -147,7 +147,7 @@ trigger: before_tool
         (hook_dir / "HOOK.md").write_text(
             """---
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 """
         )
@@ -160,7 +160,7 @@ trigger: before_tool
         (hook_dir / "HOOK.md").write_text(
             """---
 name: my-hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 """
         )
@@ -201,7 +201,7 @@ trigger: invalid_trigger
             """---
 name: my-hook
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 metadata:
   author: test-user
   version: "1.0"

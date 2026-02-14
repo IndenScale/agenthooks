@@ -61,19 +61,6 @@ All events follow the pattern: `{timing}-{entity}[-qualifier]`
 - **entity**: `session`, `agent-turn`, `agent-turn-stop`, `tool-call`, `subagent`, `context-compact`
 - **qualifier**: Optional, for special variants (e.g., `failure`)
 
-> **Legacy Names**: The following deprecated names are supported as aliases:
-> - `session_start` → `pre-session`
-> - `session_end` → `post-session`
-> - `before_agent` → `pre-agent-turn`
-> - `after_agent` → `post-agent-turn`
-> - `before_stop` → `pre-agent-turn-stop`
-> - `before_tool` → `pre-tool-call`
-> - `after_tool` → `post-tool-call`
-> - `after_tool_failure` → `post-tool-call-failure`
-> - `subagent_start` → `pre-subagent`
-> - `subagent_stop` → `post-subagent`
-> - `pre_compact` → `pre-context-compact`
-
 ---
 
 ## 2. Output Protocol
@@ -136,7 +123,7 @@ exit 2
 ```yaml
 ---
 name: security-check
-trigger: before_tool
+trigger: pre-tool-call
 async: false # default, optional
 ---
 ```
@@ -155,7 +142,7 @@ async: false # default, optional
 ```yaml
 ---
 name: auto-format
-trigger: after_tool
+trigger: post-tool-call
 async: true
 ---
 ```
@@ -193,7 +180,7 @@ Matchers filter hook trigger conditions, applicable only to tool-related events.
 ```yaml
 ---
 name: block-dangerous-commands
-trigger: before_tool
+trigger: pre-tool-call
 matcher:
   tool: "Shell" # Tool name regex
   pattern: "rm -rf /|mkfs|>:/dev/sda" # Parameter content regex
@@ -248,7 +235,7 @@ All events include these fields:
 
 ```json
 {
-  "event_type": "before_tool",
+  "event_type": "pre-tool-call",
   "timestamp": "2024-01-15T10:30:00Z",
   "session_id": "sess-abc123",
   "work_dir": "/home/user/project",

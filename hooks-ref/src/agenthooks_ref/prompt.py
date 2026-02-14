@@ -25,7 +25,7 @@ def to_prompt(hook_dirs: list[Path]) -> str:
         <hook>
         <name>block-dangerous-commands</name>
         <description>Blocks dangerous shell commands</description>
-        <trigger>before_tool</trigger>
+        <trigger>pre-tool-call</trigger>
         <location>/path/to/block-dangerous-commands/HOOK.md</location>
         </hook>
         </available_hooks>

@@ -20,8 +20,6 @@ class HookEventType(str, Enum):
     - timing: pre (before) or post (after)
     - entity: session, agent-turn, agent-turn-stop, tool-call, subagent, context-compact
     - qualifier: optional, for special variants (e.g., failure)
-
-    Legacy names (deprecated) are supported as aliases for backward compatibility.
     """
 
     # Session lifecycle
@@ -48,19 +46,6 @@ class HookEventType(str, Enum):
     # Context management
     PRE_CONTEXT_COMPACT = "pre-context-compact"
     POST_CONTEXT_COMPACT = "post-context-compact"
-
-    # Legacy aliases (deprecated, for backward compatibility)
-    SESSION_START = "session_start"  # Deprecated: use PRE_SESSION
-    SESSION_END = "session_end"  # Deprecated: use POST_SESSION
-    BEFORE_AGENT = "before_agent"  # Deprecated: use PRE_AGENT_TURN
-    AFTER_AGENT = "after_agent"  # Deprecated: use POST_AGENT_TURN
-    BEFORE_STOP = "before_stop"  # Deprecated: use PRE_AGENT_TURN_STOP
-    BEFORE_TOOL = "before_tool"  # Deprecated: use PRE_TOOL_CALL
-    AFTER_TOOL = "after_tool"  # Deprecated: use POST_TOOL_CALL
-    AFTER_TOOL_FAILURE = "after_tool_failure"  # Deprecated: use POST_TOOL_CALL_FAILURE
-    SUBAGENT_START = "subagent_start"  # Deprecated: use PRE_SUBAGENT
-    SUBAGENT_STOP = "subagent_stop"  # Deprecated: use POST_SUBAGENT
-    PRE_COMPACT = "pre_compact"  # Deprecated: use PRE_CONTEXT_COMPACT
 
 
 class HookType(str, Enum):

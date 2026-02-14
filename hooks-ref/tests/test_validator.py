@@ -11,7 +11,7 @@ class TestValidate:
             """---
 name: my-hook
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 # My Hook
 """
@@ -47,7 +47,7 @@ trigger: before_tool
             """---
 name: MyHook
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 Body
 """
@@ -64,7 +64,7 @@ Body
             f"""---
 name: {long_name}
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 Body
 """
@@ -80,7 +80,7 @@ Body
             """---
 name: -my-hook
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 Body
 """
@@ -96,7 +96,7 @@ Body
             """---
 name: my--hook
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 Body
 """
@@ -112,7 +112,7 @@ Body
             """---
 name: my_hook
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 Body
 """
@@ -128,7 +128,7 @@ Body
             """---
 name: correct-name
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 Body
 """
@@ -144,7 +144,7 @@ Body
             """---
 name: my-hook
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 unknown_field: should not be here
 ---
 Body
@@ -161,7 +161,7 @@ Body
             """---
 name: my-hook
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 matcher:
   tool: Shell
   pattern: "rm -rf"
@@ -185,7 +185,7 @@ Body
             f"""---
 name: my-hook
 description: {long_desc}
-trigger: before_tool
+trigger: pre-tool-call
 ---
 Body
 """
@@ -217,7 +217,7 @@ Body
             """---
 name: my-hook
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 timeout: 999999
 ---
 Body
@@ -234,7 +234,7 @@ Body
             """---
 name: my-hook
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 priority: 2000
 ---
 Body
@@ -251,7 +251,7 @@ Body
             """---
 name: my-hook
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 matcher:
   tool: "[invalid("
 ---
@@ -270,7 +270,7 @@ Body
             """---
 name: 技能
 description: A hook with Chinese name
-trigger: before_tool
+trigger: pre-tool-call
 ---
 Body
 """
@@ -291,7 +291,7 @@ Body
             f"""---
 name: {decomposed_name}
 description: A test hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 Body
 """

@@ -114,7 +114,7 @@ project_hooks = discover_project_hooks()
 all_hooks = load_hooks()
 
 # 按触发器加载钩子
-before_tool_hooks = load_hooks_by_trigger("before_tool")
+pre-tool-call_hooks = load_hooks_by_trigger("pre-tool-call")
 ```
 
 ## 代理提示词集成
@@ -131,7 +131,7 @@ block-dangerous-commands
 Blocks dangerous shell commands like rm -rf /
 </description>
 <trigger>
-before_tool
+pre-tool-call
 </trigger>
 <location>
 /path/to/block-dangerous-commands/HOOK.md

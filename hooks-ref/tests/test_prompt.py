@@ -15,7 +15,7 @@ class TestToPrompt:
             """---
 name: security-check
 description: Blocks dangerous commands
-trigger: before_tool
+trigger: pre-tool-call
 ---
 # Security Check
 """
@@ -28,7 +28,7 @@ trigger: before_tool
         assert "<description>" in result
         assert "Blocks dangerous commands" in result
         assert "<trigger>" in result
-        assert "before_tool" in result
+        assert "pre-tool-call" in result
         assert "<location>" in result
         assert "</available_hooks>" in result
 
@@ -39,7 +39,7 @@ trigger: before_tool
             """---
 name: hook-one
 description: First hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 """
         )
@@ -49,7 +49,7 @@ trigger: before_tool
             """---
 name: hook-two
 description: Second hook
-trigger: after_tool
+trigger: post-tool-call
 ---
 """
         )
@@ -66,7 +66,7 @@ trigger: after_tool
             """---
 name: pattern-hook
 description: Pattern matching hook
-trigger: before_tool
+trigger: pre-tool-call
 matcher:
   tool: Shell
   pattern: "rm -rf"
@@ -87,7 +87,7 @@ matcher:
             """---
 name: html-hook
 description: "Description with <script>alert('xss')</script>"
-trigger: before_tool
+trigger: pre-tool-call
 ---
 """
         )
@@ -102,7 +102,7 @@ trigger: before_tool
             """---
 name: my-hook
 description: Test hook
-trigger: before_tool
+trigger: pre-tool-call
 ---
 """
         )

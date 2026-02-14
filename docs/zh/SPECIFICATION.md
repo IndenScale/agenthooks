@@ -14,24 +14,24 @@ Agent Hooks 支持 11 种事件类型，分为 5 个类别：
 
 | 事件 | 触发时机 | 可阻断 | 推荐模式 |
 |------|----------|--------|----------|
-| `session_start` | 代理会话开始时 | ✅ 可以 | 同步 |
-| `session_end` | 代理会话结束时 | ✅ 可以 | 同步 |
+| `pre-session` | 代理会话开始时 | ✅ 可以 | 同步 |
+| `post-session` | 代理会话结束时 | ✅ 可以 | 同步 |
 
 ### 1.2 Agent 循环
 
 | 事件 | 触发时机 | 可阻断 | 推荐模式 |
 |------|----------|--------|----------|
-| `before_agent` | 代理处理用户输入前 | ✅ 可以 | 同步 |
-| `after_agent` | 代理完成处理后 | ✅ 可以 | 同步 |
+| `pre-agent-turn` | 代理处理用户输入前 | ✅ 可以 | 同步 |
+| `post-agent-turn` | 代理完成处理后 | ✅ 可以 | 同步 |
 | `before_stop` | 代理停止响应前 | ✅ **质量门禁** | **同步** |
 
 ### 1.3 工具拦截（核心）
 
 | 事件 | 触发时机 | 可阻断 | 推荐模式 |
 |------|----------|--------|----------|
-| `before_tool` | 工具执行前 | ✅ **推荐** | **同步** |
-| `after_tool` | 工具成功执行后 | ✅ 可以 | 同步 |
-| `after_tool_failure` | 工具执行失败后 | ✅ 可以 | 同步 |
+| `pre-tool-call` | 工具执行前 | ✅ **推荐** | **同步** |
+| `post-tool-call` | 工具成功执行后 | ✅ 可以 | 同步 |
+| `post-tool-call-failure` | 工具执行失败后 | ✅ 可以 | 同步 |
 
 ### 1.4 Subagent 生命周期
 
@@ -110,7 +110,7 @@ exit 2
 ```yaml
 ---
 name: security-check
-trigger: before_tool
+trigger: pre-tool-call
 async: false # 默认，可省略
 ---
 ```
@@ -129,7 +129,7 @@ async: false # 默认，可省略
 ```yaml
 ---
 name: auto-format
-trigger: after_tool
+trigger: post-tool-call
 async: true
 ---
 ```
@@ -167,7 +167,7 @@ async: true
 ```yaml
 ---
 name: block-dangerous-commands
-trigger: before_tool
+trigger: pre-tool-call
 matcher:
   tool: "Shell" # 工具名正则匹配
   pattern: "rm -rf /|mkfs|>:/dev/sda" # 参数内容正则匹配
@@ -222,7 +222,7 @@ Hook 脚本通过 **stdin** 接收 JSON 格式的事件数据。
 
 ```json
 {
-  "event_type": "before_tool",
+  "event_type": "pre-tool-call",
   "timestamp": "2024-01-15T10:30:00Z",
   "session_id": "sess-abc123",
   "work_dir": "/home/user/project",
@@ -238,11 +238,11 @@ Hook 脚本通过 **stdin** 接收 JSON 格式的事件数据。
 | `work_dir` | string | 当前工作目录 |
 | `context` | object | 额外上下文信息 |
 
-### 5.2 工具事件 (before_tool / after_tool / after_tool_failure)
+### 5.2 工具事件 (pre-tool-call / post-tool-call / post-tool-call-failure)
 
 ```json
 {
-  "event_type": "before_tool",
+  "event_type": "pre-tool-call",
   "timestamp": "2024-01-15T10:30:00Z",
   "session_id": "sess-abc123",
   "work_dir": "/home/user/project",
@@ -282,11 +282,11 @@ Hook 脚本通过 **stdin** 接收 JSON 格式的事件数据。
 
 ### 5.4 Session 事件
 
-**session_start:**
+**pre-session:**
 
 ```json
 {
-  "event_type": "session_start",
+  "event_type": "pre-session",
   "timestamp": "2024-01-15T10:30:00Z",
   "session_id": "sess-abc123",
   "work_dir": "/home/user/project",
@@ -298,11 +298,11 @@ Hook 脚本通过 **stdin** 接收 JSON 格式的事件数据。
 }
 ```
 
-**session_end:**
+**post-session:**
 
 ```json
 {
-  "event_type": "session_end",
+  "event_type": "post-session",
   "timestamp": "2024-01-15T11:30:00Z",
   "session_id": "sess-abc123",
   "work_dir": "/home/user/project",
@@ -362,13 +362,13 @@ priority: 999
 
 | 事件类型 | 同步/异步 | 推荐用途 | 示例场景 |
 |----------|-----------|----------|----------|
-| `session_start` | 同步 | 初始化、日志记录 | 发送会话开始通知、初始化环境 |
-| `session_end` | 同步 | 清理、统计、通知 | 生成会话摘要、发送 Slack 通知 |
-| `before_agent` | 同步 | 输入验证、安全检查 | 敏感词过滤、输入审查 |
-| `after_agent` | 同步 | 日志、分析 | 记录响应时间、分析输出质量 |
-| `before_tool` | 同步 | 安全检查、拦截 | 阻断危险命令、权限验证 |
-| `after_tool` | 同步 | 格式化、通知 | 自动格式化代码、发送操作通知 |
-| `after_tool_failure` | 同步 | 错误处理、重试 | 记录失败日志、发送告警 |
+| `pre-session` | 同步 | 初始化、日志记录 | 发送会话开始通知、初始化环境 |
+| `post-session` | 同步 | 清理、统计、通知 | 生成会话摘要、发送 Slack 通知 |
+| `pre-agent-turn` | 同步 | 输入验证、安全检查 | 敏感词过滤、输入审查 |
+| `post-agent-turn` | 同步 | 日志、分析 | 记录响应时间、分析输出质量 |
+| `pre-tool-call` | 同步 | 安全检查、拦截 | 阻断危险命令、权限验证 |
+| `post-tool-call` | 同步 | 格式化、通知 | 自动格式化代码、发送操作通知 |
+| `post-tool-call-failure` | 同步 | 错误处理、重试 | 记录失败日志、发送告警 |
 | `subagent_start` | 同步 | 资源限制、审批 | 检查并发数限制、任务审批 |
 | `subagent_stop` | 同步 | 结果验证、清理 | 验证输出质量、回收资源 |
 | `pre_compact` | 同步 | 备份、分析 | 备份上下文、分析压缩效果 |
@@ -382,7 +382,7 @@ priority: 999
 ---
 name: block-dangerous-commands
 description: Blocks dangerous system commands
-trigger: before_tool
+trigger: pre-tool-call
 matcher:
   tool: Shell
   pattern: "rm -rf /|mkfs|dd if=/dev/zero"
@@ -406,7 +406,7 @@ exit 2
 ---
 name: auto-format-python
 description: Auto-format Python files after write
-trigger: after_tool
+trigger: post-tool-call
 matcher:
   tool: WriteFile
   pattern: "\.py$"
@@ -421,7 +421,7 @@ async: true
 ---
 name: block-prod-deploy
 description: Block production deployment operations
-trigger: before_tool
+trigger: pre-tool-call
 matcher:
   tool: Shell
   pattern: "deploy.*prod|kubectl.*production"
@@ -443,7 +443,7 @@ exit 2
 ---
 name: audit-log
 description: Log all session activities
-trigger: session_end
+trigger: post-session
 async: true
 ---
 ```
@@ -586,7 +586,7 @@ Agent Hooks 采用渐进式披露设计，优化上下文使用：
 ---
 name: block-dangerous-commands
 description: Blocks dangerous shell commands that could destroy data
-trigger: before_tool
+trigger: pre-tool-call
 matcher:
   tool: Shell
   pattern: "rm -rf /|mkfs|dd if=/dev/zero|>:/dev/sda"

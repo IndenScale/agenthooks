@@ -8,7 +8,7 @@ This directory contains example Agent Hooks demonstrating various use cases.
 
 **Purpose:** Block dangerous system commands
 
-**Trigger:** `before_tool`
+**Trigger:** `pre-tool-call`
 
 **Features:**
 - Blocks `rm -rf /`, `mkfs`, `dd if=/dev/zero`
@@ -19,7 +19,7 @@ This directory contains example Agent Hooks demonstrating various use cases.
 
 **Purpose:** Send notifications when session ends
 
-**Trigger:** `session_end`
+**Trigger:** `post-session`
 
 **Features:**
 - Asynchronous execution (non-blocking)
@@ -30,7 +30,7 @@ This directory contains example Agent Hooks demonstrating various use cases.
 
 **Purpose:** Auto-format Python files after write
 
-**Trigger:** `after_tool`
+**Trigger:** `post-tool-call`
 
 **Features:**
 - Matches Python files (`.py` extension)

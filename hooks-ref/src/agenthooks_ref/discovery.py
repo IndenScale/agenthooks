@@ -129,7 +129,7 @@ def load_hooks_by_trigger(
     """Load hooks filtered by trigger type.
 
     Args:
-        trigger: Trigger event type (e.g., 'before_tool')
+        trigger: Trigger event type (e.g., 'pre-tool-call')
         project_dir: Project root directory (default: current directory)
 
     Returns:
