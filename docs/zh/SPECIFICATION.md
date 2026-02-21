@@ -8,7 +8,7 @@
 
 ## 1. 事件类型 (Event Types)
 
-Agent Hooks 支持 11 种事件类型，分为 5 个类别：
+Agent Hooks 支持 12 种事件类型，分为 5 个类别：
 
 ### 1.1 Session 生命周期
 
@@ -23,7 +23,8 @@ Agent Hooks 支持 11 种事件类型，分为 5 个类别：
 |------|----------|--------|----------|
 | `pre-agent-turn` | 代理处理用户输入前 | ✅ 可以 | 同步 |
 | `post-agent-turn` | 代理完成处理后 | ✅ 可以 | 同步 |
-| `before_stop` | 代理停止响应前 | ✅ **质量门禁** | **同步** |
+| `pre-agent-turn-stop` | 代理停止响应前 | ✅ **质量门禁** | **同步** |
+| `post-agent-turn-stop` | 代理停止响应后 | ✅ 可以 | 同步 |
 
 ### 1.3 工具拦截（核心）
 
@@ -37,14 +38,17 @@ Agent Hooks 支持 11 种事件类型，分为 5 个类别：
 
 | 事件 | 触发时机 | 可阻断 | 推荐模式 |
 |------|----------|--------|----------|
-| `subagent_start` | Subagent 启动时 | ✅ 可以 | 同步 |
-| `subagent_stop` | Subagent 结束时 | ✅ 可以 | 同步 |
+| `pre-subagent` | Subagent 启动时 | ✅ 可以 | 同步 |
+| `post-subagent` | Subagent 结束时 | ✅ 可以 | 同步 |
 
 ### 1.5 上下文管理
 
 | 事件 | 触发时机 | 可阻断 | 推荐模式 |
 |------|----------|--------|----------|
-| `pre_compact` | 上下文压缩前 | ✅ 可以 | 同步 |
+| `pre-context-compact` | 上下文压缩前 | ✅ 可以 | 同步 |
+| `post-context-compact` | 上下文压缩后 | ✅ 可以 | 同步 |
+
+> **命名规范**: 所有事件统一使用 `pre-*` 和 `post-*` 前缀，保持语义清晰和对称性。
 
 ---
 
@@ -260,11 +264,11 @@ Hook 脚本通过 **stdin** 接收 JSON 格式的事件数据。
 | `tool_input` | object | 工具的输入参数 |
 | `tool_use_id` | string | 工具调用唯一标识 |
 
-### 5.3 Subagent 事件
+### 5.3 Subagent 事件 (pre-subagent / post-subagent)
 
 ```json
 {
-  "event_type": "subagent_start",
+  "event_type": "pre-subagent",
   "timestamp": "2024-01-15T10:30:00Z",
   "session_id": "sess-abc123",
   "work_dir": "/home/user/project",
@@ -280,7 +284,7 @@ Hook 脚本通过 **stdin** 接收 JSON 格式的事件数据。
 | `subagent_type` | string | Subagent 类型 |
 | `task_description` | string | 任务描述 |
 
-### 5.4 Session 事件
+### 5.4 Session 事件 (pre-session / post-session)
 
 **pre-session:**
 
@@ -312,13 +316,13 @@ Hook 脚本通过 **stdin** 接收 JSON 格式的事件数据。
 }
 ```
 
-### 5.5 Stop 事件（质量门禁）
+### 5.5 Agent Turn Stop 事件（质量门禁）
 
-**before_stop:**
+**pre-agent-turn-stop:**
 
 ```json
 {
-  "event_type": "before_stop",
+  "event_type": "pre-agent-turn-stop",
   "timestamp": "2024-01-15T10:35:00Z",
   "session_id": "sess-abc123",
   "work_dir": "/home/user/project",
@@ -339,20 +343,20 @@ Hook 脚本通过 **stdin** 接收 JSON 格式的事件数据。
 
 **使用场景：质量门禁**
 
-`before_stop` 事件用于在允许代理完成前强制执行质量标准：
+`pre-agent-turn-stop` 事件用于在允许代理完成前强制执行质量标准：
 
 ```yaml
 ---
 name: enforce-tests
 description: 确保测试通过才允许完成
-trigger: before_stop
+trigger: pre-agent-turn-stop
 timeout: 60000
 async: false
 priority: 999
 ---
 ```
 
-当 `before_stop` hook 阻断时（exit 2 或 `decision: deny`），代理会收到反馈并继续工作而非停止。这创造了一个强大的质量控制机制。
+当 `pre-agent-turn-stop` hook 阻断时（exit 2 或 `decision: deny`），代理会收到反馈并继续工作而非停止。这创造了一个强大的质量控制机制。
 
 ---
 
@@ -369,10 +373,11 @@ priority: 999
 | `pre-tool-call` | 同步 | 安全检查、拦截 | 阻断危险命令、权限验证 |
 | `post-tool-call` | 同步 | 格式化、通知 | 自动格式化代码、发送操作通知 |
 | `post-tool-call-failure` | 同步 | 错误处理、重试 | 记录失败日志、发送告警 |
-| `subagent_start` | 同步 | 资源限制、审批 | 检查并发数限制、任务审批 |
-| `subagent_stop` | 同步 | 结果验证、清理 | 验证输出质量、回收资源 |
-| `pre_compact` | 同步 | 备份、分析 | 备份上下文、分析压缩效果 |
-| `before_stop` | **同步** | **质量门禁、完成标准** | **强制测试通过、验证所有任务完成** |
+| `pre-subagent` | 同步 | 资源限制、审批 | 检查并发数限制、任务审批 |
+| `post-subagent` | 同步 | 结果验证、清理 | 验证输出质量、回收资源 |
+| `pre-context-compact` | 同步 | 备份、分析 | 备份上下文、分析压缩效果 |
+| `pre-agent-turn-stop` | **同步** | **质量门禁、完成标准** | **强制测试通过、验证所有任务完成** |
+| `post-agent-turn-stop` | 同步 | 清理、最终日志 | 记录轮次完成、更新指标 |
 
 ### 6.2 常见 Hook 模式
 
@@ -448,13 +453,13 @@ async: true
 ---
 ```
 
-#### 模式 5: 质量门禁（同步 + before_stop）
+#### 模式 5: 质量门禁（同步 + pre-agent-turn-stop）
 
 ```yaml
 ---
 name: enforce-test-coverage
 description: 确保测试通过才允许完成任务
-trigger: before_stop
+trigger: pre-agent-turn-stop
 timeout: 120000
 async: false
 priority: 999
@@ -489,6 +494,68 @@ exit 0
 **行为说明:**
 
 当此 hook 以 exit 2 退出时，代理会收到 stderr 消息作为反馈并继续工作而非停止。这创造了强制执行质量标准的强大机制。
+
+#### 模式 6: Memo 捕获提醒（同步 + pre-agent-turn-stop）
+
+```yaml
+---
+name: memo-capture
+description: 提醒捕获工作过程中的 fleeting thoughts
+trigger: pre-agent-turn-stop
+timeout: 5000
+async: false
+priority: 10
+---
+```
+
+**脚本逻辑:**
+
+```bash
+#!/bin/bash
+# Memo Capture Reminder Hook
+# Trigger: pre-agent-turn-stop
+
+PROJECT_ROOT="${MONOCO_PROJECT_ROOT:-$(pwd)}"
+MONOCO_DIR="$PROJECT_ROOT/.monoco"
+MEMO_PATH="$MONOCO_DIR/MEMO.md"
+SENTINEL_PATH="$MONOCO_DIR/.memo_reminded"
+
+# Ensure .monoco directory exists
+mkdir -p "$MONOCO_DIR"
+
+# Check if already reminded in this turn
+if [ -f "$SENTINEL_PATH" ]; then
+    exit 0
+fi
+
+# Create sentinel file to mark reminder as shown
+touch "$SENTINEL_PATH"
+
+# Count existing memos
+MEMO_COUNT=0
+if [ -f "$MEMO_PATH" ]; then
+    MEMO_COUNT=$(grep -cE '^##\s*' "$MEMO_PATH" 2>/dev/null || echo "0")
+fi
+
+cat << GUIDANCE
+
+╔══════════════════════════════════════════════════════════════╗
+║  📝 Memo Capture                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+本轮工作即将结束，捕获任何 fleeting thoughts:
+
+  • 遇到的技术障碍？
+  • 需要后续完善的想法？
+  • 值得为下轮会话保留的上下文？
+  • 跳过的 "应该调查" 时刻？
+
+当前待处理 memos: $MEMO_COUNT
+
+GUIDANCE
+
+exit 0
+```
 
 ---
 
@@ -563,7 +630,7 @@ Agent Hooks 采用渐进式披露设计，优化上下文使用：
 
 ### 10.1 目录结构示例
 
-```
+```text
 ~/.config/agents/             # 用户级 (XDG)
 └── hooks/
     ├── security-check/
@@ -617,7 +684,7 @@ When blocking (exit code 2), outputs reason to stderr:
 
 ```
 Dangerous command blocked: rm -rf / would destroy the system
-```
+```text
 ````
 
 ### 10.3 脚本示例 (scripts/run.sh)
